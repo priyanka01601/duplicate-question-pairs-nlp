@@ -1,7 +1,9 @@
-streamlit
+fastapi
+uvicorn
 scikit-learn
-joblib
+pandas
 numpy
+nltk
 fuzzywuzzy
-beautifulsoup4
 distance
+beautifulsoup4
