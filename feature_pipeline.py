@@ -1,10 +1,9 @@
 import re
 import numpy as np
-import pickle
 from bs4 import BeautifulSoup
 import distance
 from fuzzywuzzy import fuzz
-from joblib import load
+from sklearn.metrics.pairwise import cosine_similarity
 # Load stopwords ONCE (important)
 
 
@@ -149,3 +148,48 @@ def query_point_creator(q1, q2, cv,STOP_WORDS):
     q2_bow = cv.transform([q2]).toarray()
 
     return np.hstack((np.array(input_query).reshape(1, -1), q1_bow, q2_bow))
+
+
+
+def query_point_creator_tfidf(q1,q2,tfidf,STOP_WORDS):
+    
+    input_query = []
+    
+    # preprocess
+    q1 = preprocess(q1)
+    q2 = preprocess(q2)
+    
+    # basic features
+    input_query.append(len(q1))
+    input_query.append(len(q2))
+    
+    input_query.append(len(q1.split(" ")))
+    input_query.append(len(q2.split(" ")))
+    
+    input_query.append(test_common_words(q1,q2))
+    input_query.append(test_total_words(q1,q2))
+    input_query.append(round(test_common_words(q1,q2)/test_total_words(q1,q2),2))
+    
+    # token features
+    token_features = test_fetch_token_features(q1,q2,STOP_WORDS)
+    input_query.extend(token_features)
+    
+    # length features
+    length_features = test_fetch_length_features(q1,q2)
+    input_query.extend(length_features)
+    
+    # fuzzy features
+    fuzzy_features = test_fetch_fuzzy_features(q1,q2)
+    input_query.extend(fuzzy_features)
+    
+    # ✅ TF-IDF feature for q1
+    q1_tfidf = tfidf.transform([q1]).toarray()
+    
+    # ✅ TF-IDF feature for q2
+    q2_tfidf = tfidf.transform([q2]).toarray()
+
+
+    cos_sim = cosine_similarity(q1_tfidf, q2_tfidf)[0][0]
+    input_query.append(cos_sim)
+    
+    return np.hstack((np.array(input_query).reshape(1,23), q1_tfidf, q2_tfidf))
