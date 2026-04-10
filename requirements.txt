@@ -2,6 +2,6 @@ streamlit
 scikit-learn
 joblib
 numpy
-rapidfuzz
+fuzzywuzzy
 beautifulsoup4
 distance
