@@ -4,3 +4,4 @@ joblib
 numpy
 rapidfuzz
 beautifulsoup4
+distance
